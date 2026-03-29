@@ -21,6 +21,7 @@ class AuthController extends Controller
             'email' => $validate['email'],
             'password' => Hash::make($validate['password']),
         ]);
+        $user->assignRole('admin');
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
     }

@@ -15,4 +15,4 @@ Route::post('/login',[AuthController::class, 'login']);
 
 //Product API routes
 Route::get('/products',[ProductController::class, 'index']);
-Route::post('/products',[ProductController::class, 'store']);
+Route::post('/products',[ProductController::class, 'store'])->middleware(['auth:sanctum', 'role:admin']);
