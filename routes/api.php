@@ -16,6 +16,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
+
+Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
 // Protected Admin routes
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('products', ProductController::class)->except('index');

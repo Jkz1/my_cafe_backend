@@ -134,7 +134,7 @@ endpoints:
       -
         custom: []
         status: 200
-        content: '[{"id":5,"category_id":1,"name":"Kipli Ice","slug":"kipli-ice","description":"Es buatan kipli yang enak bingit","price":"15000.00","stock":15,"is_available":1,"image_path":"http:\/\/localhost\/storage\/products\/doiLF9NF7QVul1uABrfHBPC8LNlsJ7NVNHoYgb92.png","created_at":"2026-03-31T01:53:31.000000Z","updated_at":"2026-03-31T01:53:31.000000Z"}]'
+        content: '[{"id":5,"category_id":1,"name":"Es Kipli","slug":"es-kipli","description":"Es buatan kipli yang enak bingit","price":"15000.00","stock":15,"is_available":1,"image_path":"http:\/\/localhost\/storage\/products\/LY7JiuxxCfj0arOnrOOit9eQv9ygJeR9e8Dn1CTn.png","created_at":"2026-03-31T01:53:31.000000Z","updated_at":"2026-03-31T02:10:18.000000Z"}]'
         headers:
           cache-control: 'no-cache, private'
           content-type: application/json
@@ -180,6 +180,37 @@ endpoints:
           content-type: application/json
           access-control-allow-origin: '*'
         description: null
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/register-admin
+    metadata:
+      custom: []
+      groupName: Endpoints
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
     responseFields: []
     auth: []
     controller: null
