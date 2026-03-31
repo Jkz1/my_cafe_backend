@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Auth;
 use Hash;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -21,6 +22,7 @@ class AuthController extends Controller
             'email' => $validate['email'],
             'password' => Hash::make($validate['password']),
         ]);
+        $user->assignRole('admin');
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
     }
@@ -35,8 +37,8 @@ class AuthController extends Controller
             'email' => $validate['email'],
             'password' => Hash::make($validate['password']),
         ]);
-        $user->assignRole('admin');
         $token = $user->createToken('auth_token')->plainTextToken;
+        event(new Registered($user));
         return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
     }
 
