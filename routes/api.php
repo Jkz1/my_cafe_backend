@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Models\User;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,8 +19,20 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+});
+
+
+
 // Protected Admin routes
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::put('/orders/{id}', [OrderController::class, 'update']);
+
     Route::apiResource('products', ProductController::class)->except('index');
     Route::apiResource('categories', CategoryController::class)->except('index');
 });
@@ -32,8 +44,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     $user = User::findOrFail($id);
-
-    // Verify hash matches
     if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
         return response()->json(['message' => 'Invalid verification link.'], 403);
     }

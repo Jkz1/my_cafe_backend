@@ -9,14 +9,13 @@ use Illuminate\Console\Attributes\Signature;
 use App\Models\User;
 use Mail;
 
-#[Signature('app:send-monthly-promotion')]
-#[Description('Command description')]
+#[Signature('emails:SendPromotionMonthly')]
+#[Description('Send monthly promotion emails to all users')]
 class SendMonthlyPromotion extends Command
 {
     /**
      * Execute the console command.
      */
-    protected $description = "Send monthly promotion emails to customers";
     public function handle()
     {
         $users = User::all();
