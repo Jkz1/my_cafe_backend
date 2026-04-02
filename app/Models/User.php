@@ -22,7 +22,10 @@ class User extends Authenticatable implements MustVerifyEmail
         // This pushes the notification to the 'database' queue we set up
         $this->notify((new \App\Notifications\CustomVerifyEmail)->delay(now()->addSeconds(5)));
     }
-    
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasApiTokens, HasRoles, Notifiable, SerializesModels;
 

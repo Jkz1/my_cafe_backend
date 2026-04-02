@@ -3,13 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreOrderRequest;
+use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
-use App\Models\Product;
-use DB;
-use Illuminate\Http\Request;
+use App\Services\OrderService;
+use Exception;
+use Gate;
 
 class OrderController extends Controller
 {
+
+    protected $orderService;
+
+    public function __construct(OrderService $orderService)
+    {
+        $this->orderService = $orderService;
+    }
+
     public function index()
     {
         $orders = Order::with('details.product')->get();
@@ -17,65 +27,47 @@ class OrderController extends Controller
     }
     public function show($id)
     {
-        $order = Order::findOrFail($id)->with('details.product')->first();
+        $order = Order::with('details.product')->findOrFail($id);
+        Gate::authorize('view', $order);
         return response()->json($order);
     }
     public function myOrders()
     {
-        $user = auth()->user();
-        $orders = Order::where('user_id', $user->id)->with('details.product')->get();
+        $orders = auth()->user()->orders()->with('details.product')->get();
         return response()->json($orders);
     }
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $request->validate([
-            'items' => 'required|array',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ]);
-        return DB::transaction(function () use ($request) {
-            $order = Order::create([
-                'user_id' => auth()->id(),
-                'total_price' => 0,
-                'status' => 'pending',
+        try {
+            $order = $this->orderService->createOrder(
+                auth()->id(), 
+                $request->validated()['items']
+            );
+
+            return response()->json([
+                'message' => 'Order created!', 
+                'id' => $order->id
+            ], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+    public function update(UpdateOrderRequest $request, $id)
+    {
+        try{
+            $order = Order::with('details.product')->findOrFail($id);
+            $order = $this->orderService->updateOrderStatus($order, $request->validated()['status']);
+            return response()->json([
+                'message' => 'Order updated!',
+                'id' => $order->id
             ]);
-            $grandTotal = 0;
-            $productIds = collect($request->items)->pluck('product_id');
-            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-            foreach ($request->items as $item) {
-                $product = $products->get($item['product_id']);
-                $subtotal = $product->price * $item['quantity'];
-                $grandTotal += $subtotal;
-                $order->details()->create([
-                    'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $product->price,
-                ]);
-            }
-            $order->update(['total_price' => $grandTotal]);
-
-            return response()->json(['message' => 'Order created!', 'id' => $order->id]);
-        });
-    }
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,shipping,completed,cancelled',
-        ]);
-        $order = Order::findOrFail($id);
-        $order->update([
-            'status' => $request->status,
-        ]);
-        return response()->json([
-            'message' => 'Order updated!',
-            'id' => $order->id
-        ]);
-
-    }
-    public function destroy($id)
-    {
-        $order = Order::findOrFail($id);
-        $order->delete();
-        return response()->json(['message' => 'Order deleted!']);
+        }catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 }

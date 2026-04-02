@@ -3,55 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Services\AuthService;
 use Auth;
 use Hash;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function registerAdmin(Request $r) {
-        $validate = $r->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-        $user = User::create([
-            'name' => $validate['name'],
-            'email' => $validate['email'],
-            'password' => Hash::make($validate['password']),
-        ]);
-        $user->assignRole('admin');
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
+    protected $authService;
+
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
     }
-    public function register(Request $r) {
-        $validate = $r->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-        $user = User::create([
-            'name' => $validate['name'],
-            'email' => $validate['email'],
-            'password' => Hash::make($validate['password']),
-        ]);
-        $token = $user->createToken('auth_token')->plainTextToken;
-        event(new Registered($user));
-        return response()->json(['access_token' => $token, 'token_type' => 'Bearer'], 201);
+    public function registerAdmin(RegisterRequest $r) {
+        $result = $this->authService->registerAdmin($r->validated());
+        return response()->json($result, 201);
+    }
+    public function register(RegisterRequest $r) {
+        $result = $this->authService->register($r->validated());
+        return response()->json($result, 201);
     }
 
-    public function login(Request $r){
-        $r->validate([
-            'email' => 'required|string|email',
-            'password' => 'required'
-        ]);
-        if(!Auth::attempt($r->only('email', 'password'))) {
-            return response()->json(['message'=> 'Invalid Login details'],401);
-        }
-        $user = User::where('email', $r->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['access_token' => $token, 'token_type' => 'Bearer']);
+    public function login(LoginRequest $r){
+        $result = $this->authService->login($r->validated());
+        return response()->json($result);
     }
 }

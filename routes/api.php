@@ -23,10 +23,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
-    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });
-
-
 
 // Protected Admin routes
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -41,6 +38,21 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 //     $request->fulfill();
 //     return response()->json(['message' => 'Email verified successfully!']);
 // })->middleware(['signed'])->name('verification.verify');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Route::get('/email/verify/{id}/{hash}', function (Request $request, $id, $hash) {
     $user = User::findOrFail($id);

@@ -20,6 +20,11 @@ class DataSeed extends Seeder
             'email' => 'User@gmail.com',
             'password' => bcrypt('password123'),
         ]);
+        User::factory()->create([
+            'name' => 'User1',
+            'email' => 'User1@gmail.com',
+            'password' => bcrypt('password123'),
+        ]);
         $admin = User::factory()->create([
             'name' => 'Admin',
             'email' => 'Admin@gmail.com',
@@ -42,7 +47,7 @@ class DataSeed extends Seeder
             'category_id' => $soft->id,
             'description' => 'A refreshing soft drink.',
             'price' => 1.99,
-            'stock' => 100,
+            'stock' => 10,
             'is_available' => true,
         ]);
         $burger = Product::factory()->create([
@@ -51,7 +56,7 @@ class DataSeed extends Seeder
             'category_id' => $meal->id,
             'description' => 'A delicious beef burger.',
             'price' => 5.99,
-            'stock' => 50,
+            'stock' => 5,
             'is_available' => true,
         ]);
     }
