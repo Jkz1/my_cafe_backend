@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartItemsController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -23,11 +24,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
+
+    Route::get('/cart-items/{id}', [CartItemsController::class, 'show']);
+    Route::post('/cart-items', [CartItemsController::class,'store']);
+    Route::put('/cart-items/{id}/increment', [CartItemsController::class,'increment']);
+    Route::put('/cart-items/{id}/decrement', [CartItemsController::class,'decrement']);
+    Route::delete('/cart-items/{id}', [CartItemsController::class,'destroy']);
+
 });
 
 // Protected Admin routes
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/cart-items', [CartItemsController::class, 'index']);
     Route::put('/orders/{id}', [OrderController::class, 'update']);
 
     Route::apiResource('products', ProductController::class)->except('index');

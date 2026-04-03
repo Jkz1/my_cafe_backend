@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreOrderRequest extends FormRequest
+class StoreCartItemsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -23,8 +23,8 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'items' => 'required|array',
-            'items.*.cart_item_id' => 'required|exists:cart_items,id'
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'nullable|integer|min:1'
         ];
     }
 }

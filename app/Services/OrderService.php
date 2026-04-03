@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\CartItems;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
@@ -9,9 +10,20 @@ use Exception;
 
 class OrderService
 {
-    public function createOrder(int $userId, array $items): Order
+    public function createOrder(int $userId, array $cartItemIds): Order
     {
-        return DB::transaction(function () use ($userId, $items) {
+        return DB::transaction(function () use ($userId, $cartItemIds) {
+
+            $cartItems = CartItems::with('product')
+                ->whereIn('id', $cartItemIds)
+                ->where('user_id', $userId)
+                ->lockForUpdate()
+                ->get();
+
+            if ($cartItems->count() !== count($cartItemIds)) {
+                throw new Exception("Invalid cart items.");
+            }
+
             $order = Order::create([
                 'user_id' => $userId,
                 'total_price' => 0,
@@ -19,29 +31,28 @@ class OrderService
             ]);
 
             $grandTotal = 0;
-            $productIds = collect($items)->pluck('product_id');
-            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
 
-            foreach ($items as $item) {
-                $product = $products->get($item['product_id']);
-
-                if ($product->stock < $item['quantity']) {
+            foreach ($cartItems as $item) {
+                $product = $item->product;
+                if ($product->stock < $item->quantity) {
                     throw new Exception("Product {$product->name} is out of stock.");
                 }
-
-                $subtotal = $product->price * $item['quantity'];
+                $subtotal = $product->price * $item->quantity;
                 $grandTotal += $subtotal;
-
                 $order->details()->create([
                     'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
+                    'quantity' => $item->quantity,
                     'unit_price' => $product->price
                 ]);
-                $product->decrement('stock', $item['quantity']);
+
+                $product->decrement('stock', $item->quantity);
             }
+
             $order->update(['total_price' => $grandTotal]);
 
-            return $order;
+            CartItems::whereIn('id', $cartItemIds)->delete();
+
+            return $order->fresh('details');
         });
     }
     public function updateOrderStatus(Order $order, string $status): Order

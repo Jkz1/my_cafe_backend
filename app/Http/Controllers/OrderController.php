@@ -12,14 +12,11 @@ use Gate;
 
 class OrderController extends Controller
 {
-
     protected $orderService;
-
     public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
     }
-
     public function index()
     {
         $orders = Order::with('details.product')->get();

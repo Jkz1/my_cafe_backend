@@ -2,10 +2,6 @@
 namespace App\Services;
 
 use App\Models\Category;
-use App\Models\User;
-use Auth;
-use Illuminate\Validation\ValidationException;
-use Hash;
 use Str;
 
 class CategoryService

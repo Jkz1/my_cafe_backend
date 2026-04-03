@@ -12,12 +12,10 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     protected $productService;
-
     public function __construct(ProductService $productService)
     {
         $this->productService = $productService;
     }
-
     public function index()
     {
         $products = Product::all();
@@ -43,7 +41,6 @@ class ProductController extends Controller
             'data' => $updatedProduct
         ], 200);
     }
-
     public function destroy($id)
     {
         $product = Product::findOrFail($id);

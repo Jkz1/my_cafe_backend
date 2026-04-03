@@ -8,10 +8,11 @@ use Exception;
 
 class CartItemsService
 {
-    public function increment($cartItemId, $quantity = 1)
+    public function increment($id,$data)
     {
+        $quantity = $data["quantity"];
         $user = Auth::user();
-        $item = CartItems::where("id", $cartItemId)
+        $item = CartItems::where("id", $id)
             ->where("user_id", $user->id)
             ->firstOrFail();
         if ($item->product->stock < ($item->quantity + 1)) {
@@ -20,10 +21,11 @@ class CartItemsService
         $item->increment("quantity", $quantity);
         return $item->fresh();
     }
-    public function decrement($cartItemId, $quantity = 1)
+    public function decrement($id, $data)
     {
+        $quantity = $data["quantity"];
         $user = Auth::user();
-        $item = CartItems::where("id", $cartItemId)
+        $item = CartItems::where("id", $id)
             ->where("user_id", $user->id)
             ->firstOrFail();
         if ($item->quantity <= $quantity) {
@@ -34,8 +36,10 @@ class CartItemsService
         return $item->fresh();
     }
 
-    public function store($productId, $quantity = 1)
+    public function store($data)
     {
+        $productId = $data["product_id"];
+        $quantity = $data["quantity"];
         $user = Auth::user();
 
         $product = Product::findOrFail($productId);
@@ -64,10 +68,10 @@ class CartItemsService
         ]);
     }
 
-    public function destroy($cartItemId)
+    public function destroy($id)
     {
         $user = Auth::user();
-        $item = CartItems::where("id", $cartItemId)
+        $item = CartItems::where("id", $id)
             ->where("user_id", $user->id)
             ->firstOrFail();
         $item->delete();
