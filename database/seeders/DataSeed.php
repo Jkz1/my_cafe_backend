@@ -40,24 +40,29 @@ class DataSeed extends Seeder
             'name' => 'Meal',
             'slug' => 'meal',
         ]);
-
-        $cocaCola = Product::factory()->create([
-            'name' => 'Coca Cola',
-            'slug' => 'coca-cola',
+        Product::factory()->count(5)->create([
             'category_id' => $soft->id,
-            'description' => 'A refreshing soft drink.',
-            'price' => 1.99,
-            'stock' => 10,
-            'is_available' => true,
         ]);
-        $burger = Product::factory()->create([
-            'name' => 'Burger',
-            'slug' => 'burger',
+        Product::factory()->count(5)->create([
             'category_id' => $meal->id,
-            'description' => 'A delicious beef burger.',
-            'price' => 5.99,
-            'stock' => 5,
-            'is_available' => true,
         ]);
+        // $cocaCola = Product::factory()->create([
+        //     'name' => 'Coca Cola',
+        //     'slug' => 'coca-cola',
+        //     'category_id' => $soft->id,
+        //     'description' => 'A refreshing soft drink.',
+        //     'price' => 1.99,
+        //     'stock' => 10,
+        //     'is_available' => true,
+        // ]);
+        // $burger = Product::factory()->create([
+        //     'name' => 'Burger',
+        //     'slug' => 'burger',
+        //     'category_id' => $meal->id,
+        //     'description' => 'A delicious beef burger.',
+        //     'price' => 5.99,
+        //     'stock' => 5,
+        //     'is_available' => true,
+        // ]);
     }
 }
