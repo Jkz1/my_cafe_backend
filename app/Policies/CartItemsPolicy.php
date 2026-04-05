@@ -2,11 +2,10 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
 use App\Models\CartItems;
 use App\Models\User;
 
-class CartItemsService
+class CartItemsPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -37,7 +36,7 @@ class CartItemsService
      */
     public function update(User $user, CartItems $cartItem): bool
     {
-        return true;
+        return $user->id === $cartItem->user_id;
     }
 
     /**
@@ -45,7 +44,7 @@ class CartItemsService
      */
     public function delete(User $user, CartItems $cartItem): bool
     {
-        return true;
+        return $user->id === $cartItem->user_id;
     }
 
     /**

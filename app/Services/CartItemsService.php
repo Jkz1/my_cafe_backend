@@ -15,7 +15,7 @@ class CartItemsService
         $item = CartItems::where("id", $id)
             ->where("user_id", $user->id)
             ->firstOrFail();
-        if ($item->product->stock < ($item->quantity + 1)) {
+        if ($item->product->stock < ($item->quantity + $quantity)) {
             throw new Exception("Stock not enough");
         }
         $item->increment("quantity", $quantity);

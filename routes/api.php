@@ -18,10 +18,11 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/my-orders', [OrderController::class, 'myOrders']);
+    Route::get('/orders/my-orders', [OrderController::class, 'myOrders']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
 

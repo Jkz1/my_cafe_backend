@@ -7,7 +7,6 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use App\Services\ProductService;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -44,9 +43,6 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
         $product->delete();
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }

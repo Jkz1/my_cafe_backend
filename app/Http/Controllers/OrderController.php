@@ -9,9 +9,11 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Exception;
 use Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class OrderController extends Controller
 {
+    use AuthorizesRequests;
     protected $orderService;
     public function __construct(OrderService $orderService)
     {
@@ -25,7 +27,7 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = Order::with('details.product')->findOrFail($id);
-        Gate::authorize('view', $order);
+        $this->authorize('view', $order);
         return response()->json($order);
     }
     public function myOrders()
