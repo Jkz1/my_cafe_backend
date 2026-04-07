@@ -8,6 +8,7 @@ class CreateOrderRecord {
             'user_id' => $data->userId,
             'total_price' => 0,
             'status' => 'pending',
+            'coupon_id' => $data->couponId
         ]);
         return $next($data);
     }

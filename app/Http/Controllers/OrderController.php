@@ -40,14 +40,13 @@ class OrderController extends Controller
         try {
             $order = $this->orderService->createOrder(
                 auth()->id(), 
-                $request->validated()['items']
+                $request->validated()['items'],
+                $request->validated()['coupon_id'] ?? null,
             );
-
             return response()->json([
                 'message' => 'Order created!', 
                 'id' => $order->id
             ], 201);
-
         } catch (Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()

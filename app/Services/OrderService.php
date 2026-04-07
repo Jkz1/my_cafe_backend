@@ -11,17 +11,18 @@ use Illuminate\Support\Facades\Pipeline;
 
 class OrderService
 {
-    public function createOrder(int $userId, array $cartItemIds): Order
+    public function createOrder(int $userId, array $cartItemIds, ?int $coupon_id = null ): Order
     {
-        return DB::transaction(function () use ($userId, $cartItemIds) {
-            $orderData = new OrderData($userId, $cartItemIds);
+        return DB::transaction(function () use ($userId, $cartItemIds, $coupon_id) {
+            $orderData = new OrderData($userId, $cartItemIds, couponId: $coupon_id);
 
             return Pipeline::send($orderData)
                 ->through([
                     \App\Actions\Orders\ValidateAndPrepareItems::class,
                     \App\Actions\Orders\CreateOrderRecord::class,
                     \App\Actions\Orders\ProcessOrderDetails::class,
-                    \App\Actions\Orders\ClearCart::class, // (Implementation omitted for brevity)
+                    \App\Actions\Orders\ClearCart::class,
+                    \App\Actions\Orders\ApplyCoupon::class
                 ])
                 ->then(fn ($data) => $data->order->fresh('details'));
         });

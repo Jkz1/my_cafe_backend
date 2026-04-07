@@ -16,10 +16,9 @@ class ProductApiTest extends TestCase
     protected function createAdminUser()
     {
         // 2. Create Roles and Assign Permissions
-        $admin = Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'admin']);
         $user = User::factory()->create();
         $user->assignRole('admin');
-
         return $user;
     }
     public function test_index_product(): void

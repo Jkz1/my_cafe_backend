@@ -24,7 +24,8 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'items' => 'required|array',
-            'items.*.cart_item_id' => 'required|exists:cart_items,id'
+            'items.*.cart_item_id' => 'required|exists:cart_items,id',
+            'coupon_id' => 'nullable|exists:coupons,id'
         ];
     }
 }

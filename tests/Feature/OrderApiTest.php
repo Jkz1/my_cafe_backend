@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CartItems;
+use App\Models\Coupons;
 use App\Services\OrderService;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -92,6 +93,31 @@ class OrderApiTest extends TestCase
                 ['cart_item_id' => CartItems::factory()->for($user)->for($products[0])->create()->id],
                 ['cart_item_id' => CartItems::factory()->for($user)->for($products[1])->create()->id]
             ]
+        ];
+
+        $response = $this->actingAs($user)
+            ->postJson('/api/orders', $payload);
+
+        $response->assertStatus(201)
+            ->assertJsonStructure(['message', 'id']);
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $user->id
+        ]);
+    }
+    public function test_user_can_create_order_with_coupon()
+    {
+        $user = User::factory()->create();
+        $coupon = Coupons::factory()->create(['type' => 'percent', 'value' => 10, 'min_spend' => 0]);
+
+        $products = Product::factory()->count(2)->create();
+
+        $payload = [
+            'items' => [
+                ['cart_item_id' => CartItems::factory()->for($user)->for($products[0])->create()->id],
+                ['cart_item_id' => CartItems::factory()->for($user)->for($products[1])->create()->id]
+            ],
+            'coupon_id' => $coupon->id,
         ];
 
         $response = $this->actingAs($user)
