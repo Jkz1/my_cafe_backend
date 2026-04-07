@@ -17,32 +17,44 @@ Route::get('/user', function (Request $request) {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/register-admin', [AuthController::class, 'registerAdmin']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/categories', [CategoryController::class, 'index']);
+Route::apiResource('products', ProductController::class)->only(['index', 'show']);
+Route::apiResource('categories', CategoryController::class)->only(['index']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/orders/my-orders', [OrderController::class, 'myOrders']);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::get('/orders/{id}', [OrderController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/cart-items/{id}', [CartItemsController::class, 'show']);
-    Route::post('/cart-items', [CartItemsController::class,'store']);
-    Route::put('/cart-items/{id}/increment', [CartItemsController::class,'increment']);
-    Route::put('/cart-items/{id}/decrement', [CartItemsController::class,'decrement']);
-    Route::delete('/cart-items/{id}', [CartItemsController::class,'destroy']);
+    Route::prefix('orders')->group(function () {
+        Route::get('/my', [OrderController::class, 'myOrders']); // cleaner naming
+        Route::post('/', [OrderController::class, 'store']);
+        Route::get('/{id}', [OrderController::class, 'show']);
+    });
+
+    Route::prefix('cart-items')->group(function () {
+        Route::get('/{id}', [CartItemsController::class, 'show']);
+        Route::post('/', [CartItemsController::class, 'store']);
+        Route::patch('/{id}/increment', [CartItemsController::class, 'increment']);
+        Route::patch('/{id}/decrement', [CartItemsController::class, 'decrement']);
+        Route::delete('/{id}', [CartItemsController::class, 'destroy']);
+    });
 
 });
 
-// Protected Admin routes
+// Admin routes
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/cart-items', [CartItemsController::class, 'index']);
-    Route::put('/orders/{id}', [OrderController::class, 'update']);
 
-    Route::apiResource('products', ProductController::class)->except('index');
-    Route::apiResource('categories', CategoryController::class)->except('index');
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);
+        Route::patch('/{id}', [OrderController::class, 'update']);
+    });
+
+    Route::prefix('cart-items')->group(function () {
+        Route::get('/', [CartItemsController::class, 'index']);
+    });
+
+    Route::apiResource('products', ProductController::class)->except(['index', 'show']);
+    Route::apiResource('categories', CategoryController::class)->except(['index']);
+
 });
+
 
 // Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
 //     $request->fulfill();

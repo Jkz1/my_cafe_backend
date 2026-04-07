@@ -100,7 +100,7 @@ class CartItemsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson("/api/cart-items/{$item->id}/increment", [
+            ->patchJson("/api/cart-items/{$item->id}/increment", [
                 'quantity' => 2
             ]);
         $response->assertStatus(201);
@@ -124,7 +124,7 @@ class CartItemsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson("/api/cart-items/{$item->id}/decrement", [
+            ->patchJson("/api/cart-items/{$item->id}/decrement", [
                 'quantity' => 2
             ]);
 
@@ -149,7 +149,7 @@ class CartItemsApiTest extends TestCase
         ]);
 
         $response = $this->actingAs($user)
-            ->putJson("/api/cart-items/{$item->id}/decrement", [
+            ->patchJson("/api/cart-items/{$item->id}/decrement", [
                 'quantity' => 2
             ]);
 

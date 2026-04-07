@@ -77,7 +77,7 @@ class OrderApiTest extends TestCase
         Order::factory()->count(1)->create(); // other user
 
         $response = $this->actingAs($user)
-            ->getJson('/api/orders/my-orders');
+            ->getJson('/api/orders/my');
 
         $response->assertStatus(200)
             ->assertJsonCount(2);
@@ -123,12 +123,16 @@ class OrderApiTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson('/api/orders', $payload);
 
+        $response->dump();
+
         $response->assertStatus(201)
             ->assertJsonStructure(['message', 'id']);
 
         $this->assertDatabaseHas('orders', [
             'user_id' => $user->id
         ]);
+        $this->assertEquals(1, $coupon->fresh()->used_count);
+
     }
     public function test_it_validates_create_order()
     {
@@ -136,7 +140,6 @@ class OrderApiTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/orders', []);
-
         $response->assertStatus(422);
     }
     public function test_it_returns_400_if_service_fails_on_create()
@@ -168,7 +171,7 @@ class OrderApiTest extends TestCase
         $order = Order::factory()->for($user)->create();
         $admin = $this->createAdminUser();
         $response = $this->actingAs($admin)
-            ->putJson("/api/orders/{$order->id}", [
+            ->patchJson("/api/orders/{$order->id}", [
                 'status' => 'completed'
             ]);
 
@@ -190,7 +193,7 @@ class OrderApiTest extends TestCase
         $admin = $this->createAdminUser();
 
         $response = $this->actingAs($admin)
-            ->putJson("/api/orders/{$order->id}", [
+            ->patchJson("/api/orders/{$order->id}", [
                 'status' => 'completed'
             ]);
 
