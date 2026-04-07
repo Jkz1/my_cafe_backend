@@ -8,19 +8,6 @@ use Str;
 
 class CouponsService
 {
-
-    public function store(array $data): Coupons
-    {
-
-        if (empty($data['code'])) {
-            $data['code'] = strtoupper(Str::random(10));
-        }
-
-
-        $data['starts_at'] = $data['starts_at'] ?? now();
-
-        return Coupons::create($data);
-    }
     public function applyCoupon(int $couponId, float $orderTotal): array
     {
         $coupon = Coupons::find($couponId);

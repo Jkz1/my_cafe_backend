@@ -170,18 +170,6 @@ class OrderServiceTest extends TestCase
         // Stock should remain same
         $this->assertEquals(5, $product->fresh()->stock);
     }
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Test successful order creation with a coupon.
      */
@@ -219,7 +207,7 @@ class OrderServiceTest extends TestCase
             'coupon_id' => $coupon->id
         ]);
         
-        // Ensure usage count was incremented (if your service handles this)
+        // Ensure usage count was incremented
         $this->assertEquals(1, $coupon->fresh()->used_count);
     }
 

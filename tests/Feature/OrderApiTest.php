@@ -15,20 +15,20 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class OrderApiTest extends TestCase
 {
     use RefreshDatabase;
-    protected function createAdminUser()
-    {
-        // 2. Create Roles and Assign Permissions
-        $admin = Role::firstOrCreate(['name' => 'admin']);
-        $user = User::factory()->create();
-        $user->assignRole('admin');
+    protected $admin;
 
-        return $user;
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Role::firstOrCreate(['name' => 'admin']);
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->admin = $admin;
     }
     public function test_it_can_get_all_orders()
     {
         Order::factory()->count(3)->create();
-        $admin = $this->createAdminUser();
-        $response = $this->actingAs($admin, 'sanctum')->getJson('/api/orders');
+        $response = $this->actingAs($this->admin, 'sanctum')->getJson('/api/orders');
 
         $response->assertStatus(200)
             ->assertJsonCount(3);
@@ -169,8 +169,7 @@ class OrderApiTest extends TestCase
     {
         $user = User::factory()->create();
         $order = Order::factory()->for($user)->create();
-        $admin = $this->createAdminUser();
-        $response = $this->actingAs($admin)
+        $response = $this->actingAs($this->admin)
             ->patchJson("/api/orders/{$order->id}", [
                 'status' => 'completed'
             ]);
@@ -190,9 +189,8 @@ class OrderApiTest extends TestCase
 
         $user = User::factory()->create();
         $order = Order::factory()->for($user)->create();
-        $admin = $this->createAdminUser();
 
-        $response = $this->actingAs($admin)
+        $response = $this->actingAs($this->admin)
             ->patchJson("/api/orders/{$order->id}", [
                 'status' => 'completed'
             ]);

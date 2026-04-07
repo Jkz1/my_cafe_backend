@@ -13,13 +13,15 @@ use Tests\TestCase;
 class ProductApiTest extends TestCase
 {
     use RefreshDatabase;
-    protected function createAdminUser()
+    protected $admin;
+
+    protected function setUp(): void
     {
-        // 2. Create Roles and Assign Permissions
+        parent::setUp();
         Role::firstOrCreate(['name' => 'admin']);
-        $user = User::factory()->create();
-        $user->assignRole('admin');
-        return $user;
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $this->admin = $admin;
     }
     public function test_index_product(): void
     {
@@ -72,9 +74,6 @@ class ProductApiTest extends TestCase
     {
 
         $category = Category::factory()->create();
-
-        $admin = $this->createAdminUser();
-
         $data = [
             'name' => 'Espresso',
             'category_id' => $category->id,
@@ -83,11 +82,14 @@ class ProductApiTest extends TestCase
             'price' => 15000
         ];
 
-        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/products', $data);
+        $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/products', $data);
 
         $response->assertStatus(201)
             ->assertJson([
-                'name' => 'Espresso'
+                'message' => 'Product created!',
+                'data' => [
+                    'name' => 'Espresso'
+                ]
             ]);
 
         $this->assertDatabaseHas('products', [
@@ -97,19 +99,16 @@ class ProductApiTest extends TestCase
     }
     public function test_it_validates_create_product()
     {
-        $admin = $this->createAdminUser();
-
-        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/products', []);
+        $response = $this->actingAs($this->admin, 'sanctum')->postJson('/api/products', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'price']);
     }
     public function test_it_can_delete_product()
     {
-        $admin = $this->createAdminUser();
         $product = Product::factory()->create();
 
-        $response = $this->actingAs($admin, 'sanctum')->deleteJson("/api/products/{$product->id}");
+        $response = $this->actingAs($this->admin, 'sanctum')->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(200)
             ->assertJson([

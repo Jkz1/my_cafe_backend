@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DecrementCartItemsRequest;
-use App\Http\Requests\IncrementCartItemsRequest;
-use App\Http\Requests\StoreCartItemsRequest;
+use App\Http\Requests\CartItems\DecrementCartItemsRequest;
+use App\Http\Requests\CartItems\IncrementCartItemsRequest;
+use App\Http\Requests\CartItems\StoreCartItemsRequest;
 use App\Models\CartItems;
 use App\Services\CartItemsService;
 use Gate;
@@ -32,13 +32,13 @@ class CartItemsController extends Controller
     public function store(StoreCartItemsRequest $r)
     {
         $item = $this->cartService->store($r->validated());
-        return response()->json($item, 201);
+        return response()->json(['message' => 'Item added to cart!', 'data' => $item], 201);
     }
     public function increment(IncrementCartItemsRequest $r, $id)
     {
         $item = $this->cartService->increment($id, $r->validated());
         $this->authorize('update', $item);
-        return response()->json($item, 201);
+        return response()->json(['message' => 'Item quantity updated!', 'data' => $item], 201);
     }
     public function decrement(DecrementCartItemsRequest $r, $id)
     {

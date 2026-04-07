@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Order;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class LoginRequest extends FormRequest
+class UpdateOrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,11 +21,18 @@ class LoginRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
+        $userStatus = ['cancelled'];
+        $adminStatus = ['pending', 'shipping', 'completed', 'cancelled'];
+
+         $statusOptions = auth()->user()->hasRole('admin') ? $adminStatus : $userStatus;
         return [
-            'email' => 'required|string|email',
-            'password' => 'required'
+            'status' => [
+                'required',
+                Rule::in($statusOptions),
+            ],
         ];
     }
 }

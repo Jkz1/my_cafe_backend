@@ -27,10 +27,10 @@ return new class extends Migration {
 
             // Status and Time
             $table->boolean('is_active')->default(true);
-            $table->timestamp('starts_at')->nullable();     // When the sale begins
-            $table->timestamp('expires_at')->nullable();    // Your requested expiration field
+            $table->timestamp('starts_at')->default(now());     // When the sale begins
+            $table->timestamp('expires_at')->default(now()->addDays(30));    // Your requested expiration field
             $table->timestamps();
-            $table->softDeletes(); // Recommended: don't hard-delete historical data
+            $table->softDeletes();
         });
     }
 

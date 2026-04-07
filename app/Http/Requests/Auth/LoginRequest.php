@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Auth;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DecrementCartItemsRequest extends FormRequest
+class LoginRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,16 +20,18 @@ class DecrementCartItemsRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    protected function prepareForValidation():void
-    {
-        $this->merge([
-            'quantity' => $this->quantity ?? 1,
-        ]);
-    }
     public function rules(): array
     {
         return [
-            'quantity' => 'integer|min:1',
+            'email' => [
+                'required',
+                'string',
+                'email',
+            ],
+            'password' => [
+                'required',
+                'string',
+            ],
         ];
     }
 }

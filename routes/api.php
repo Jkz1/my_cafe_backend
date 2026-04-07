@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartItemsController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CouponsController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Models\User;
@@ -50,11 +51,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::get('/', [CartItemsController::class, 'index']);
     });
 
+    Route::apiResource('coupons', CouponsController::class)->only(['index', 'destroy', 'store']);
+
     Route::apiResource('products', ProductController::class)->except(['index', 'show']);
     Route::apiResource('categories', CategoryController::class)->except(['index']);
 
 });
-
 
 // Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
 //     $request->fulfill();

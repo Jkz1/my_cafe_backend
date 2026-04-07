@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Requests\Category\StoreCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Services\CategoryService;
 use Illuminate\Http\Request;
@@ -32,14 +32,14 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $r)
     {
         $category = $this->categoryService->store($r->validated());
-        return response()->json($category, 201);
+        return response()->json(['message' => 'Category created!', 'data' => $category], 201);
     }
 
     public function update(UpdateCategoryRequest $r, $id)
     {
         $category = Category::findOrFail($id);
         $res = $this->categoryService->update($category, $r->validated());
-        return response()->json($res, 200);
+        return response()->json(['message' => 'Category updated!', 'data' => $res], 200);
     }
     public function destroy($id)
     {
