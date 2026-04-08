@@ -61,6 +61,39 @@ class OrderServiceTest extends TestCase
             'id' => $cartItem->id
         ]);
     }
+    public function test_it_cannot_create_order_with_other_user_cart_item()
+    {
+        $otherUser = User::factory()->create();
+        $user = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'price' => 100,
+            'stock' => 10
+        ]);
+
+        $cartItem = CartItems::factory()->create([
+            'user_id' => $otherUser->id, 
+            'product_id' => $product->id,
+            'quantity' => 2
+        ]);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Invalid cart items.");
+
+        
+        try {
+            $this->service->createOrder($user->id, [$cartItem->id]);
+        } finally {
+            $this->assertDatabaseCount('orders', 0);
+
+            $this->assertEquals(10, $product->fresh()->stock);
+            
+            $this->assertDatabaseHas('cart_items', [
+                'id' => $cartItem->id,
+                'user_id' => $otherUser->id
+            ]);
+        }
+    }
     public function test_it_throws_exception_if_cart_items_invalid()
     {
         $this->expectException(\Exception::class);
@@ -176,7 +209,7 @@ class OrderServiceTest extends TestCase
     public function test_it_applies_coupon_successfully_and_reduces_total()
     {
         $user = User::factory()->create();
-        
+
         // Create a $50 fixed discount coupon
         $coupon = Coupons::factory()->create([
             'code' => 'SAVE50',
@@ -206,7 +239,7 @@ class OrderServiceTest extends TestCase
             'total_price' => 350,
             'coupon_id' => $coupon->id
         ]);
-        
+
         // Ensure usage count was incremented
         $this->assertEquals(1, $coupon->fresh()->used_count);
     }
@@ -238,7 +271,7 @@ class OrderServiceTest extends TestCase
         $this->expectExceptionMessage("You must spend at least 1000");
 
         $this->service->createOrder($user->id, [$cartItem->id], $coupon->id);
-        
+
         // Verify database remains clean due to transaction rollback
         $this->assertDatabaseCount('orders', 0);
         $this->assertEquals(0, $coupon->fresh()->used_count);
@@ -250,7 +283,7 @@ class OrderServiceTest extends TestCase
     public function test_it_calculates_percentage_discount_correctly()
     {
         $user = User::factory()->create();
-        
+
         $coupon = Coupons::factory()->create([
             'code' => 'PERCENT10',
             'type' => 'percent',

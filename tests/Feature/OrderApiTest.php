@@ -97,6 +97,7 @@ class OrderApiTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/orders', $payload);
+        
 
         $response->assertStatus(201)
             ->assertJsonStructure(['message', 'id']);
@@ -123,7 +124,6 @@ class OrderApiTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson('/api/orders', $payload);
 
-        $response->dump();
 
         $response->assertStatus(201)
             ->assertJsonStructure(['message', 'id']);

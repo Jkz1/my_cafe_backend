@@ -77,7 +77,6 @@ class CouponApiTest extends TestCase
 
         $response = $this->actingAs($this->admin, 'sanctum')->deleteJson("/api/coupons/{$coupon->id}");
         
-        $response->dump();
         $response->assertStatus(200);
 
         // If using soft deletes
