@@ -3,30 +3,31 @@
 namespace App\Services;
 
 use App\DTOs\OrderData;
-use App\Models\CartItems;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
-use Exception;
 use Illuminate\Support\Facades\Pipeline;
 
 class OrderService
 {
-    public function createOrder(int $userId, array $cartItemIds, ?int $coupon_id = null ): Order
+    public function createOrder(int $userId, array $cartItemIds, ?int $coupon_id = null): Order
     {
         return DB::transaction(function () use ($userId, $cartItemIds, $coupon_id) {
             $orderData = new OrderData($userId, $cartItemIds, couponId: $coupon_id);
 
             return Pipeline::send($orderData)
                 ->through([
-                    \App\Actions\Orders\ValidateAndPrepareItems::class,
-                    \App\Actions\Orders\CreateOrderRecord::class,
-                    \App\Actions\Orders\ProcessOrderDetails::class,
-                    \App\Actions\Orders\ClearCart::class,
-                    \App\Actions\Orders\ApplyCoupon::class
+                    // --- Computation (no DB writes) ---
+                    \App\Actions\Orders\ValidateAndPrepareItems::class,  // validate & lock rows
+                    \App\Actions\Orders\ProcessOrderDetails::class,      // compute subtotal, stage details
+                    \App\Actions\Orders\ApplyCoupon::class,              // compute grandTotal / discount
+
+                    // --- Persistence (single DB write point) ---
+                    \App\Actions\Orders\SaveOrder::class,                // create order + details, decrement stock, clear cart
                 ])
                 ->then(fn ($data) => $data->order->fresh('details'));
         });
     }
+
     public function updateOrderStatus(Order $order, string $status): Order
     {
         return DB::transaction(function () use ($order, $status) {

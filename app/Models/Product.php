@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Console\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
-#[Fillable(['name', 'slug','category_id', 'description', 'price', 'stock', 'is_available', 'image_path'])]
+#[Guarded([])]
 class Product extends Model
 {
     use HasFactory;

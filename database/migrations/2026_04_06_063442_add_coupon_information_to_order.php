@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('orders', function (Blueprint $table) {
             $table->foreignId('coupon_id')->nullable()->constrained()->onDelete('set null');
-            $table->decimal('discount_amount', 12, 2)->default(0);
+            $table->decimal('discount_amount', 12, 2)->default(0)->nullable();
             $table->decimal('subtotal', 12, 2)->default(0);
         });
     }
