@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\Coupons\Schemas;
 
+use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Str;
 
 class CouponsForm
 {
@@ -17,7 +20,14 @@ class CouponsForm
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('code')
-                    ->required(),
+                    ->required()->suffixAction(
+                        Action::make('generateCode')
+                            ->icon('heroicon-m-arrow-path')
+                            ->tooltip('Generate random code')
+                            ->action(function (Set $set) {
+                                $set('code', str(Str::random(10))->upper()->toString());
+                            })
+                    ),
                 Select::make('type')
                     ->options(['fixed' => 'Fixed', 'percent' => 'Percent'])
                     ->default('fixed')

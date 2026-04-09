@@ -11,12 +11,18 @@ use App\Filament\Resources\Coupons\Schemas\CouponsInfolist;
 use App\Filament\Resources\Coupons\Tables\CouponsTable;
 use App\Models\Coupons;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Str;
 
 class CouponsResource extends Resource
 {
@@ -28,7 +34,16 @@ class CouponsResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return CouponsForm::configure($schema);
+        // return CouponsForm::configure($schema)->schema([
+        //     Checkbox::make('send_to_users')->label('Send this coupon via email to all users ?')->helperText('Warning: This will email every user in database')->dehydrated(false),
+        // ]);
+        $configured = CouponsForm::configure($schema);
+        return $configured->schema([
+            ...$configured->getComponents(),
+            Section::make('Notify User')->schema([
+                Checkbox::make('send_to_users')->label('Send this coupon via email to all users ?')->helperText('Warning: This will email every user in database')->dehydrated(false),
+            ])
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
