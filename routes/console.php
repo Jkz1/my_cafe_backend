@@ -7,4 +7,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('emails:SendPromotionMonthly')->monthlyOn(1, '08:00');
+// Schedule::command('emails:SendPromotionMonthly')->monthlyOn(1, '08:00');

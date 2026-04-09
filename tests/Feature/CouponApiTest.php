@@ -79,7 +79,6 @@ class CouponApiTest extends TestCase
         
         $response->assertStatus(200);
 
-        // If using soft deletes
         $this->assertSoftDeleted('coupons', ['id' => $coupon->id]);
     }
 }

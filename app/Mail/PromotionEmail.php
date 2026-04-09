@@ -19,7 +19,8 @@ class PromotionEmail extends Mailable implements ShouldQueue
      * Create a new message instance.
      */
     public function __construct(
-        public User $user
+        public User $user,
+        public $coupon_code
     ) {
     }
 
@@ -41,7 +42,8 @@ class PromotionEmail extends Mailable implements ShouldQueue
         return new Content(
             view: 'emails.promotion',
             with: [
-                'userName' => $this->user->name
+                'userName' => $this->user->name,
+                'couponCode' => $this->coupon_code,
             ]
         );
     }

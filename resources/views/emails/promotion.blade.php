@@ -61,19 +61,19 @@
 <body>
     <div class="container">
         <div class="hero">
-            <h1 style="margin: 0; font-size: 28px;">Exclusive Monthly Deals</h1>
+            <h1 style="margin: 0; font-size: 28px;">Exclusive Monthly Coupon Code</h1>
             <p style="margin: 10px 0 0; opacity: 0.9;">Handpicked offers just for you</p>
         </div>
 
         <div class="content">
             <p>Hi {{ $user->name ?? 'there' }},</p>
-            <p>Check out what we have in store for you this month. We've updated our catalog with new items and special discounts available for a limited time.</p>
+            <p>Check out what we have in store for you this month. We've new code to use in a limited time.</p>
 
             <div class="card">
                 <h3 style="margin-top: 0; color: #10b981;">Featured Offer</h3>
                 <p>Get <strong>20% OFF</strong> on all services when you use the code below at checkout.</p>
                 <div style="background: #f3f4f6; padding: 10px; text-align: center; border-radius: 6px; font-family: monospace; font-size: 18px; font-weight: bold; border: 1px dashed #10b981;">
-                    PROMO2026
+                    {{ $coupon_code }}
                 </div>
             </div>
 
@@ -85,9 +85,7 @@
         </div>
 
         <div class="footer">
-            <p>You are receiving this email because you subscribed to our monthly newsletter.</p>
             <p>&copy; {{ date('Y') }} Your Company. All rights reserved.</p>
-            <p><a href="{{ url('/unsubscribe') }}" style="color: #999999;">Unsubscribe</a></p>
         </div>
     </div>
 </body>

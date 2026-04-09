@@ -1,9 +1,12 @@
 <?php
 namespace App\Services;
 
+use App\Mail\PromotionEmail;
 use App\Models\Coupons;
+use App\Models\User;
 use Carbon\Carbon;
 use Exception;
+use Mail;
 use Str;
 
 class CouponsService
@@ -69,5 +72,21 @@ class CouponsService
     public function incrementUsage(Coupons $coupon): void
     {
         $coupon->increment('used_count');
+    }
+
+    public function broadcastToAllUsers(Coupons $coupon): void
+    {
+        $users = User::all();
+        $delayed = 0;
+        foreach ($users as $user) {
+            if(!$user->hasRole('admin')) {
+                continue;
+            }
+            // Mail::to($user->email)->send(new PromotionEmail($user));
+
+            //since we still using free mailtrap, we will delay the email sending to avoid hitting rate limits
+            Mail::to($user->email)->later(now()->addSeconds($delayed), new PromotionEmail($user, $coupon->code));
+            $delayed += 30;
+        }
     }
 }
