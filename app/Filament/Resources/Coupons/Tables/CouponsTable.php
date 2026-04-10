@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\Coupons\Tables;
 
+use App\Models\Coupons;
+use App\Services\CouponsService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
@@ -67,6 +71,21 @@ class CouponsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('sendEmail')
+                    ->label('Send Email')
+                    ->icon('heroicon-o-envelope')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Broadcast Coupon')
+                    ->modalDescription('Are you sure you want to email this coupon code to all registered users?')
+                    ->modalSubmitActionLabel('Yes, Send Emails')
+                    ->action(function (Coupons $record) {
+                        app(CouponsService::class)->broadcastToAllUsers($record);
+                        Notification::make()
+                            ->title('Broadcast started successfully!')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
