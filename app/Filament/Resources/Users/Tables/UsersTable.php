@@ -42,6 +42,29 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    \Filament\Actions\BulkAction::make('assign_coupon')
+                        ->label('Assign Coupon')
+                        ->icon('heroicon-o-ticket')
+                        ->form([
+                            \Filament\Forms\Components\Select::make('coupon_id')
+                                ->label('Select Coupon')
+                                ->options(\App\Models\Coupons::where('is_active', true)->pluck('name', 'id'))
+                                ->required()
+                                ->searchable(),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                            $coupon = \App\Models\Coupons::find($data['coupon_id']);
+                            if ($coupon) {
+                                foreach ($records as $user) {
+                                    $user->coupons()->syncWithoutDetaching([$coupon->id]);
+                                }
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Coupon assigned successfully')
+                                    ->success()
+                                    ->send();
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

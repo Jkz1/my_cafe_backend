@@ -16,6 +16,7 @@ class ApplyCoupon
             $result = $this->couponService->applyCoupon(
                 $data->couponId,
                 $data->subTotal,
+                $data->userId
             );
 
             $data->grandTotal = $result['final_total'];

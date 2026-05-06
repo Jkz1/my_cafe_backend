@@ -11,7 +11,7 @@ use Str;
 
 class CouponsService
 {
-    public function applyCoupon(int $couponId, float $orderTotal): array
+    public function applyCoupon(int $couponId, float $orderTotal, int $userId): array
     {
         $coupon = Coupons::find($couponId);
 
@@ -19,7 +19,7 @@ class CouponsService
             throw new Exception("Invalid coupon code.");
         }
 
-        $this->validateCoupon($coupon, $orderTotal);
+        $this->validateCoupon($coupon, $orderTotal, $userId);
 
         $discountAmount = $this->calculateDiscount($coupon, $orderTotal);
         $finalTotal = max(0, $orderTotal - $discountAmount);
@@ -32,8 +32,11 @@ class CouponsService
             'final_total' => $finalTotal,
         ];
     }
-    protected function validateCoupon(Coupons $coupon, float $orderTotal): void
+    protected function validateCoupon(Coupons $coupon, float $orderTotal, int $userId): void
     {
+        if ($coupon->users()->exists() && !$coupon->users()->where('users.id', $userId)->exists()) {
+            throw new Exception("You are not eligible to use this coupon.");
+        }
 
         if (!$coupon->is_active) {
             throw new Exception("This coupon is no longer active.");

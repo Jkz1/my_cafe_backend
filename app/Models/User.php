@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +25,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupons::class, 'coupon_user', 'user_id', 'coupon_id');
     }
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasApiTokens, HasRoles, Notifiable, SerializesModels;
