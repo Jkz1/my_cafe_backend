@@ -18,43 +18,32 @@ class DataSeed extends Seeder
      */
     public function run(): void
     {
-        $user1 = User::factory()->create([
-            'name' => 'User',
-            'email' => 'User@gmail.com',
-            'password' => bcrypt('password123'),
-        ]);
-        $user2 = User::factory()->create([
-            'name' => 'User1',
-            'email' => 'User1@gmail.com',
-            'password' => bcrypt('password123'),
-        ]);
-        $admin = User::factory()->create([
+        // Create Admin
+        $admin = User::firstOrCreate(['email' => 'Admin@gmail.com'], [
             'name' => 'Admin',
-            'email' => 'Admin@gmail.com',
             'password' => bcrypt('Admin123'),
         ]);
         $admin->assignRole('admin');
 
-        $soft = Category::factory()->create([
+        // Create 4 random users
+        $users = User::factory(4)->create();
+
+        $soft = Category::firstOrCreate(['slug' => 'soft-drink'], [
             'name' => 'Soft Drink',
-            'slug' => 'soft-drink',
         ]);
-        $meal = Category::factory()->create([
+        $meal = Category::firstOrCreate(['slug' => 'meal'], [
             'name' => 'Meal',
-            'slug' => 'meal',
         ]);
-        $coffee = Category::factory()->create([
+        $coffee = Category::firstOrCreate(['slug' => 'coffee'], [
             'name' => 'Coffee',
-            'slug' => 'coffee',
         ]);
-        $pastry = Category::factory()->create([
+        $pastry = Category::firstOrCreate(['slug' => 'pastry'], [
             'name' => 'Pastry',
-            'slug' => 'pastry',
         ]);
 
-        $cocaCola = Product::factory()->create([
+        $products = [];
+        $products[] = Product::firstOrCreate(['slug' => 'coca-cola'], [
             'name' => 'Coca Cola',
-            'slug' => 'coca-cola',
             'category_id' => $soft->id,
             'description' => 'A refreshing soft drink.',
             'price' => 1.99,
@@ -62,9 +51,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $sprite = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'sprite'], [
             'name' => 'Sprite',
-            'slug' => 'sprite',
             'category_id' => $soft->id,
             'description' => 'A refreshing lemon-lime soda.',
             'price' => 1.99,
@@ -72,9 +60,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $burger = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'beef-burger'], [
             'name' => 'Beef Burger',
-            'slug' => 'beef-burger',
             'category_id' => $meal->id,
             'description' => 'A delicious beef burger.',
             'price' => 5.99,
@@ -82,9 +69,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $clubSandwich = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'club-sandwich'], [
             'name' => 'Club Sandwich',
-            'slug' => 'club-sandwich',
             'category_id' => $meal->id,
             'description' => 'Classic club sandwich with turkey and bacon.',
             'price' => 6.99,
@@ -92,9 +78,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $espresso = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'espresso'], [
             'name' => 'Espresso',
-            'slug' => 'espresso',
             'category_id' => $coffee->id,
             'description' => 'Strong and bold espresso shot.',
             'price' => 2.50,
@@ -102,9 +87,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $cappuccino = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'cappuccino'], [
             'name' => 'Cappuccino',
-            'slug' => 'cappuccino',
             'category_id' => $coffee->id,
             'description' => 'Espresso with steamed milk and thick foam.',
             'price' => 3.50,
@@ -112,9 +96,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $croissant = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'croissant'], [
             'name' => 'Croissant',
-            'slug' => 'croissant',
             'category_id' => $pastry->id,
             'description' => 'Flaky and buttery french croissant.',
             'price' => 2.99,
@@ -122,9 +105,8 @@ class DataSeed extends Seeder
             'is_available' => true,
         ]);
 
-        $muffin = Product::factory()->create([
+        $products[] = Product::firstOrCreate(['slug' => 'blueberry-muffin'], [
             'name' => 'Blueberry Muffin',
-            'slug' => 'blueberry-muffin',
             'category_id' => $pastry->id,
             'description' => 'Freshly baked blueberry muffin.',
             'price' => 2.49,
@@ -133,9 +115,8 @@ class DataSeed extends Seeder
         ]);
 
         // Add Coupons
-        $publicCoupon = Coupons::create([
+        $publicCoupon = Coupons::firstOrCreate(['code' => 'WELCOME10'], [
             'name' => 'Welcome Discount',
-            'code' => 'WELCOME10',
             'type' => 'percent',
             'value' => 10,
             'min_spend' => 5.00,
@@ -146,83 +127,46 @@ class DataSeed extends Seeder
             'expires_at' => now()->addDays(30),
         ]);
 
-        $restrictedCoupon = Coupons::create([
-            'name' => 'VIP Special',
-            'code' => 'VIP20',
-            'type' => 'fixed',
-            'value' => 5.00,
-            'min_spend' => 15.00,
-            'usage_limit' => 50,
-            'user_limit' => 1,
-            'is_active' => true,
-            'starts_at' => now(),
-            'expires_at' => now()->addDays(30),
-        ]);
+        // Create 25 orders spread in April 2026
+        $allProducts = \App\Models\Product::all();
+        for ($i = 0; $i < 25; $i++) {
+            $user = $users->random();
+            // Random date in April 2026
+            $orderDate = \Illuminate\Support\Carbon::create(2026, 4, rand(1, 30), rand(8, 20), rand(0, 59), rand(0, 59));
+            
+            $subtotal = 0;
+            $orderItems = [];
+            
+            $itemsCount = rand(1, 3);
+            $selectedProducts = $allProducts->random($itemsCount);
+            
+            foreach ($selectedProducts as $product) {
+                $qty = rand(1, 2);
+                $orderItems[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $qty,
+                    'unit_price' => $product->price,
+                    'created_at' => $orderDate,
+                    'updated_at' => $orderDate,
+                ];
+                $subtotal += ($product->price * $qty);
+            }
 
-        $restrictedCoupon->users()->attach($user2->id);
+            // Using forceCreate to bypass guards for subtotal and total_price
+            $order = Order::forceCreate([
+                'user_id' => $user->id,
+                'subtotal' => $subtotal,
+                'discount_amount' => 0,
+                'total_price' => $subtotal,
+                'status' => 'completed',
+                'created_at' => $orderDate,
+                'updated_at' => $orderDate,
+            ]);
 
-        // Add Orders
-        $order1 = Order::create([
-            'user_id' => $user1->id,
-            'subtotal' => 7.98,
-            'discount_amount' => 0,
-            'total_price' => 7.98,
-            'status' => 'completed',
-        ]);
-
-        OrderDetails::create([
-            'order_id' => $order1->id,
-            'product_id' => $cocaCola->id,
-            'quantity' => 1,
-            'unit_price' => $cocaCola->price,
-        ]);
-
-        OrderDetails::create([
-            'order_id' => $order1->id,
-            'product_id' => $burger->id,
-            'quantity' => 1,
-            'unit_price' => $burger->price,
-        ]);
-
-        // Order 2 with restricted coupon
-        $order2 = Order::create([
-            'user_id' => $user2->id,
-            'coupon_id' => $restrictedCoupon->id,
-            'subtotal' => 15.98,
-            'discount_amount' => 5.00, // VIP20 is fixed $5 off
-            'total_price' => 10.98,
-            'status' => 'completed',
-        ]);
-
-        OrderDetails::create([
-            'order_id' => $order2->id,
-            'product_id' => $clubSandwich->id,
-            'quantity' => 2,
-            'unit_price' => $clubSandwich->price,
-        ]);
-
-        OrderDetails::create([
-            'order_id' => $order2->id,
-            'product_id' => $sprite->id,
-            'quantity' => 1,
-            'unit_price' => $sprite->price,
-        ]);
-
-        // Order 3 with public coupon
-        $order3 = Order::create([
-            'user_id' => $user1->id,
-            'coupon_id' => $publicCoupon->id,
-            'subtotal' => 6.00,
-            'discount_amount' => 0.70,
-            'total_price' => 6.30,
-            'status' => 'pending',
-        ]);
-
-        OrderDetails::create([
-            'order_id' => $order3->id,
-            'product_id' => $cappuccino->id,
-            'quantity' => 2,
-            'unit_price' => $cappuccino->price,
-        ]);
+            foreach ($orderItems as $item) {
+                $item['order_id'] = $order->id;
+                OrderDetails::create($item);
+            }
+        }
     }
 }
