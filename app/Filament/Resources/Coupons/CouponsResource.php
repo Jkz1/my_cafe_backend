@@ -28,7 +28,7 @@ class CouponsResource extends Resource
 {
     protected static ?string $model = Coupons::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Ticket;
 
     protected static ?string $recordTitleAttribute = 'Coupons';
 

@@ -8,6 +8,9 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
 
 class UsersTable
 {
@@ -31,13 +34,37 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('orders_count')
+                    ->counts('orders')
+                    ->label('Total Orders')
+                    ->sortable(),
+                TextColumn::make('orders_sum_total_price')
+                    ->sum('orders', 'total_price')
+                    ->label('Total Spend')
+                    ->money()
+                    ->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('order_date')
+                    ->form([
+                        DatePicker::make('order_from')->label('Order From'),
+                        DatePicker::make('order_until')->label('Order Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['order_from'],
+                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('created_at', '>=', $date)),
+                            )
+                            ->when(
+                                $data['order_until'],
+                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('created_at', '<=', $date)),
+                            );
+                    })
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                // EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
