@@ -16,7 +16,7 @@ use \Filament\Forms\Components\Select;
 use \Illuminate\Database\Eloquent\Collection;
 use \Filament\Notifications\Notification;
 use \App\Models\Coupons;
-use \App\Models\Order;
+use \App\Services\OrderService;
 use Carbon\Carbon;
 class UsersTable
 {
@@ -25,19 +25,12 @@ class UsersTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $filters = request()->input('tableFilters.order_date', []);
-                $from = data_get($filters, 'order_from');
-                $until = data_get($filters, 'order_until');
 
-                return $query->addSelect([
-                    'total_orders_count' => Order::selectRaw('count(*)')
-                        ->whereColumn('user_id', 'users.id')
-                        ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
-                        ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
-                    'total_spend_sum' => Order::selectRaw('coalesce(sum(total_price), 0)')
-                        ->whereColumn('user_id', 'users.id')
-                        ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
-                        ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
-                ]);
+                return app(OrderService::class)->userOrderStats(
+                    $query,
+                    data_get($filters, 'order_from'),
+                    data_get($filters, 'order_until')
+                );
             })
             ->columns([
                 TextColumn::make('name')

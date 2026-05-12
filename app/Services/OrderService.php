@@ -6,7 +6,7 @@ use App\DTOs\OrderData;
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
-
+use Illuminate\Database\Eloquent\Builder;
 class OrderService
 {
     public function createOrder(int $userId, array $cartItemIds, ?int $coupon_id = null): Order
@@ -24,7 +24,7 @@ class OrderService
                     // --- Persistence (single DB write point) ---
                     \App\Actions\Orders\SaveOrder::class,                // create order + details, decrement stock, clear cart
                 ])
-                ->then(fn ($data) => $data->order->fresh('details'));
+                ->then(fn($data) => $data->order->fresh('details'));
         });
     }
 
@@ -39,5 +39,23 @@ class OrderService
             $order->update(['status' => $status]);
             return $order;
         });
+    }
+
+    /**
+     * Applies subqueries to calculate total orders and spend for a User query.
+     */
+    public function userOrderStats(Builder $query, ?string $from = null, ?string $until = null): Builder
+    {
+        return $query->addSelect([
+            'total_orders_count' => Order::selectRaw('count(*)')
+                ->whereColumn('user_id', 'users.id')
+                ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
+                ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+
+            'total_spend_sum' => Order::selectRaw('coalesce(sum(total_price), 0)')
+                ->whereColumn('user_id', 'users.id')
+                ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
+                ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+        ]);
     }
 }
