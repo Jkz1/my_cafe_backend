@@ -11,12 +11,34 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
-
+use \Filament\Actions\BulkAction;
+use \Filament\Forms\Components\Select;
+use \Illuminate\Database\Eloquent\Collection;
+use \Filament\Notifications\Notification;
+use \App\Models\Coupons;
+use \App\Models\Order;
+use Carbon\Carbon;
 class UsersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                $filters = request()->input('tableFilters.order_date', []);
+                $from = data_get($filters, 'order_from');
+                $until = data_get($filters, 'order_until');
+
+                return $query->addSelect([
+                    'total_orders_count' => Order::selectRaw('count(*)')
+                        ->whereColumn('user_id', 'users.id')
+                        ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
+                        ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+                    'total_spend_sum' => Order::selectRaw('coalesce(sum(total_price), 0)')
+                        ->whereColumn('user_id', 'users.id')
+                        ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
+                        ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+                ]);
+            })
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -34,12 +56,10 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('orders_count')
-                    ->counts('orders')
+                TextColumn::make('total_orders_count')
                     ->label('Total Orders')
                     ->sortable(),
-                TextColumn::make('orders_sum_total_price')
-                    ->sum('orders', 'total_price')
+                TextColumn::make('total_spend_sum')
                     ->label('Total Spend')
                     ->money()
                     ->sortable(),
@@ -61,6 +81,22 @@ class UsersTable
                                 fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('created_at', '<=', $date)),
                             );
                     })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if (!empty($data['order_from']) && !empty($data['order_until'])) {
+                            $indicators[] = '📅 Orders from '
+                                . Carbon::parse($data['order_from'])->toFormattedDateString()
+                                . ' to '
+                                . Carbon::parse($data['order_until'])->toFormattedDateString();
+                        } elseif (!empty($data['order_from'])) {
+                            $indicators[] = '📅 Orders from ' . Carbon::parse($data['order_from'])->toFormattedDateString();
+                        } elseif (!empty($data['order_until'])) {
+                            $indicators[] = '📅 Orders until ' . Carbon::parse($data['order_until'])->toFormattedDateString();
+                        }
+
+                        return $indicators;
+                    }),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -69,23 +105,23 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    \Filament\Actions\BulkAction::make('assign_coupon')
+                    BulkAction::make('assign_coupon')
                         ->label('Assign Coupon')
                         ->icon('heroicon-o-ticket')
                         ->form([
-                            \Filament\Forms\Components\Select::make('coupon_id')
+                            Select::make('coupon_id')
                                 ->label('Select Coupon')
-                                ->options(\App\Models\Coupons::where('is_active', true)->pluck('name', 'id'))
+                                ->options(Coupons::where('is_active', true)->pluck('name', 'id'))
                                 ->required()
                                 ->searchable(),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
-                            $coupon = \App\Models\Coupons::find($data['coupon_id']);
+                        ->action(function (Collection $records, array $data): void {
+                            $coupon = Coupons::find($data['coupon_id']);
                             if ($coupon) {
                                 foreach ($records as $user) {
                                     $user->coupons()->syncWithoutDetaching([$coupon->id]);
                                 }
-                                \Filament\Notifications\Notification::make()
+                                Notification::make()
                                     ->title('Coupon assigned successfully')
                                     ->success()
                                     ->send();
