@@ -17,6 +17,7 @@ use \Illuminate\Database\Eloquent\Collection;
 use \Filament\Notifications\Notification;
 use \App\Models\Coupons;
 use \App\Services\OrderService;
+use \App\Services\CouponsService;
 use Carbon\Carbon;
 class UsersTable
 {
@@ -111,9 +112,8 @@ class UsersTable
                         ->action(function (Collection $records, array $data): void {
                             $coupon = Coupons::find($data['coupon_id']);
                             if ($coupon) {
-                                foreach ($records as $user) {
-                                    $user->coupons()->syncWithoutDetaching([$coupon->id]);
-                                }
+                                app(CouponsService::class)->assignToUsers($coupon, $records);
+
                                 Notification::make()
                                     ->title('Coupon assigned successfully')
                                     ->success()

@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Jobs\AssignCouponToUsersJob;
 use App\Mail\PromotionEmail;
 use App\Models\Coupons;
 use App\Models\User;
@@ -82,7 +83,7 @@ class CouponsService
         $users = User::all();
         $delayed = 0;
         foreach ($users as $user) {
-            if($user->hasRole('admin')) {
+            if ($user->hasRole('admin')) {
                 continue;
             }
             // Mail::to($user->email)->send(new PromotionEmail($user));
@@ -91,5 +92,18 @@ class CouponsService
             Mail::to($user->email)->later(now()->addSeconds($delayed), new PromotionEmail($user, $coupon->code));
             $delayed += 30;
         }
+    }
+
+    /**
+     * Assign a specific coupon to a collection of users.
+     */
+    public function assignToUsers(Coupons $coupon, $users): void
+    {
+        // Extract IDs so we don't pass heavy Eloquent models to the Queue
+        $userIds = $users instanceof \Illuminate\Support\Collection
+            ? $users->pluck('id')->toArray()
+            : array_column($users, 'id');
+
+        AssignCouponToUsersJob::dispatch($coupon, $userIds);
     }
 }
