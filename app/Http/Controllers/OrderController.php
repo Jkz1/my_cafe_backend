@@ -10,6 +10,7 @@ use App\Services\OrderService;
 use Exception;
 use Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\OrderResource;
 
 class OrderController extends Controller
 {
@@ -22,18 +23,18 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::with('details.product')->get();
-        return response()->json($orders);
+        return OrderResource::collection($orders);
     }
     public function show($id)
     {
         $order = Order::with('details.product')->findOrFail($id);
         $this->authorize('view', $order);
-        return response()->json($order);
+        return new OrderResource($order);
     }
     public function myOrders()
     {
         $orders = auth()->user()->orders()->with('details.product')->get();
-        return response()->json($orders);
+        return OrderResource::collection($orders);
     }
     public function store(StoreOrderRequest $request)
     {

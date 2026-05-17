@@ -29,7 +29,7 @@ class CartItemsApiTest extends TestCase
         $response = $this->actingAs($this->admin, 'sanctum')->getJson('/api/cart-items');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_user_can_view_cart_item()
@@ -47,7 +47,9 @@ class CartItemsApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id' => $item->id
+                'data' => [
+                    'id' => $item->id
+                ]
             ]);
     }
 

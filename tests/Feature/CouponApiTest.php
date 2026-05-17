@@ -31,7 +31,7 @@ class CouponApiTest extends TestCase
             ->getJson('/api/coupons');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_admin_can_create_coupon()

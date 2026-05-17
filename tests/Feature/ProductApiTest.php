@@ -36,15 +36,17 @@ class ProductApiTest extends TestCase
         $response = $this->get("/api/products");
 
         $response->assertStatus(200)->assertJson([
-            [
-                'id' => $pro1->id,
-                'name' => 'Pro1',
-                'price' => 12
-            ],
-            [
-                'id' => $pro2->id,
-                'name' => 'Pro2',
-                'price' => 15
+            'data' => [
+                [
+                    'id' => $pro1->id,
+                    'name' => 'Pro1',
+                    'price' => 12
+                ],
+                [
+                    'id' => $pro2->id,
+                    'name' => 'Pro2',
+                    'price' => 15
+                ]
             ]
         ]);
     }
@@ -59,9 +61,11 @@ class ProductApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id' => $product->id,
-                'name' => 'Coffee Latte',
-                'price' => 31
+                'data' => [
+                    'id' => $product->id,
+                    'name' => 'Coffee Latte',
+                    'price' => 31
+                ]
             ]);
     }
     public function test_it_returns_404_if_product_not_found()

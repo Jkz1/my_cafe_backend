@@ -9,6 +9,7 @@ use App\Models\CartItems;
 use App\Services\CartItemsService;
 use Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\CartItemResource;
 
 class CartItemsController extends Controller
 {
@@ -21,24 +22,24 @@ class CartItemsController extends Controller
     public function index()
     {
         $items = CartItems::with('product')->get();
-        return response()->json($items);
+        return CartItemResource::collection($items);
     }
     public function show($id)
     {
         $cartItem = CartItems::with('product')->findOrFail($id);
         $this->authorize('view', $cartItem);
-        return response()->json($cartItem);
+        return new CartItemResource($cartItem);
     }
     public function store(StoreCartItemsRequest $r)
     {
         $item = $this->cartService->store($r->validated());
-        return response()->json(['message' => 'Item added to cart!', 'data' => $item], 201);
+        return response()->json(['message' => 'Item added to cart!', 'data' => new CartItemResource($item)], 201);
     }
     public function increment(IncrementCartItemsRequest $r, $id)
     {
         $item = $this->cartService->increment($id, $r->validated());
         $this->authorize('update', $item);
-        return response()->json(['message' => 'Item quantity updated!', 'data' => $item], 201);
+        return response()->json(['message' => 'Item quantity updated!', 'data' => new CartItemResource($item)], 201);
     }
     public function decrement(DecrementCartItemsRequest $r, $id)
     {
@@ -50,7 +51,7 @@ class CartItemsController extends Controller
                 'message' => 'Item removed from cart'
             ], 201);
         }
-        return response()->json($item, 201);
+        return response()->json(new CartItemResource($item), 201);
     }
     public function destroy($id)
     {

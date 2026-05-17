@@ -7,6 +7,7 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Models\Product;
 use App\Services\ProductService;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -18,19 +19,19 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json($products);
+        return ProductResource::collection($products);
     }
     public function show($id)
     {
         $product = Product::findOrFail($id);
-        return response()->json($product);
+        return new ProductResource($product);
     }
     public function store(StoreProductRequest $request)
     {
         $product = $this->productService->create($request->validated());
         return response()->json([
             'message' => 'Product created!',
-            'data' => $product
+            'data' => new ProductResource($product)
         ], 201);
     }
     public function update(UpdateProductRequest $request, $id)
@@ -40,7 +41,7 @@ class ProductController extends Controller
 
         return response()->json([
             'message' => 'Product updated!',
-            'data' => $updatedProduct
+            'data' => new ProductResource($updatedProduct)
         ], 200);
     }
     public function destroy($id)

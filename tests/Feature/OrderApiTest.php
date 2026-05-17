@@ -31,7 +31,7 @@ class OrderApiTest extends TestCase
         $response = $this->actingAs($this->admin, 'sanctum')->getJson('/api/orders');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_user_can_view_their_own_order()
@@ -44,7 +44,9 @@ class OrderApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id' => $order->id
+                'data' => [
+                    'id' => $order->id
+                ]
             ]);
     }
     public function test_user_cannot_view_others_order()
@@ -80,7 +82,7 @@ class OrderApiTest extends TestCase
             ->getJson('/api/orders/my');
 
         $response->assertStatus(200)
-            ->assertJsonCount(2);
+            ->assertJsonCount(2, 'data');
     }
     public function test_user_can_create_order()
     {

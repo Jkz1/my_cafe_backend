@@ -10,10 +10,11 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Resources\UserResource;
 
 Route::middleware('throttle:api')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return current(UserResource::collection([$request->user()])) ?? new UserResource($request->user());
     })->middleware('auth:sanctum');
 
     // Public routes

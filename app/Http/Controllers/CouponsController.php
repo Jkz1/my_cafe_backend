@@ -7,6 +7,7 @@ use App\Http\Requests\Coupon\StoreCouponRequest;
 use App\Models\Coupons;
 use App\Services\CouponsService;
 use Illuminate\Http\Request;
+use App\Http\Resources\CouponResource;
 
 class CouponsController extends Controller
 {
@@ -17,11 +18,11 @@ class CouponsController extends Controller
     }
     public function index(){
         $coupons = Coupons::all();
-        return response()->json($coupons);
+        return CouponResource::collection($coupons);
     }
     public function store (StoreCouponRequest $r){
         $coupon = Coupons::create($r->validated());
-        return response()->json(["message"=> "Coupon created!", "data" => $coupon], 201);
+        return response()->json(["message"=> "Coupon created!", "data" => new CouponResource($coupon)], 201);
     }
     public function destroy($id) {
         $coupons = Coupons::findOrFail($id);
