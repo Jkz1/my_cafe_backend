@@ -26,8 +26,7 @@ class UsersTable
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $filters = request()->input('tableFilters.order_date', []);
-
-                return app(OrderService::class)->userOrderStats(
+                return app(OrderService::class)->userOrderStatsQuery(
                     $query,
                     data_get($filters, 'order_from'),
                     data_get($filters, 'order_until')

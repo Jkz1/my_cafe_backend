@@ -44,7 +44,7 @@ class OrderService
     /**
      * Applies subqueries to calculate total orders and spend for a User query.
      */
-    public function userOrderStats(Builder $query, ?string $from = null, ?string $until = null): Builder
+    public function userOrderStatsQuery(Builder $query, ?string $from = null, ?string $until = null): Builder
     {
         return $query->addSelect([
             'total_orders_count' => Order::selectRaw('count(*)')
