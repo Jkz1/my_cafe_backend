@@ -16,15 +16,18 @@ class CouponsController extends Controller
     {
         $this->couponsService = $couponsService;
     }
-    public function index(){
-        $coupons = Coupons::all();
+    public function index()
+    {
+        $coupons = Coupons::paginate(100);
         return CouponResource::collection($coupons);
     }
-    public function store (StoreCouponRequest $r){
+    public function store(StoreCouponRequest $r)
+    {
         $coupon = Coupons::create($r->validated());
-        return response()->json(["message"=> "Coupon created!", "data" => new CouponResource($coupon)], 201);
+        return response()->json(["message" => "Coupon created!", "data" => new CouponResource($coupon)], 201);
     }
-    public function destroy($id) {
+    public function destroy($id)
+    {
         $coupons = Coupons::findOrFail($id);
         $coupons->delete();
         return response()->json(["message" => "Coupon deleted!", "data" => $coupons]);

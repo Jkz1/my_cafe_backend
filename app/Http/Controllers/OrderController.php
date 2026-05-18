@@ -22,7 +22,7 @@ class OrderController extends Controller
     }
     public function index()
     {
-        $orders = Order::with('details.product')->get();
+        $orders = Order::with('details.product')->paginate(100);
         return OrderResource::collection($orders);
     }
     public function show($id)
@@ -33,19 +33,19 @@ class OrderController extends Controller
     }
     public function myOrders()
     {
-        $orders = auth()->user()->orders()->with('details.product')->get();
+        $orders = auth()->user()->orders()->with('details.product')->paginate(100);
         return OrderResource::collection($orders);
     }
     public function store(StoreOrderRequest $request)
     {
         try {
             $order = $this->orderService->createOrder(
-                auth()->id(), 
+                auth()->id(),
                 $request->validated()['items'],
                 $request->validated()['coupon_id'] ?? null,
             );
             return response()->json([
-                'message' => 'Order created!', 
+                'message' => 'Order created!',
                 'id' => $order->id
             ], 201);
         } catch (Exception $e) {
@@ -56,14 +56,14 @@ class OrderController extends Controller
     }
     public function update(UpdateOrderRequest $request, $id)
     {
-        try{
+        try {
             $order = Order::with('details.product')->findOrFail($id);
             $order = $this->orderService->updateOrderStatus($order, $request->validated()['status']);
             return response()->json([
                 'message' => 'Order updated!',
                 'id' => $order->id
             ]);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => $e->getMessage()
             ], 400);

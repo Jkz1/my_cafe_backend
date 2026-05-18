@@ -21,7 +21,7 @@ class CartItemsController extends Controller
     }
     public function index()
     {
-        $items = CartItems::with('product')->get();
+        $items = CartItems::with('product')->paginate(100);
         return CartItemResource::collection($items);
     }
     public function show($id)
