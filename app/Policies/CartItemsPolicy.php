@@ -52,7 +52,7 @@ class CartItemsPolicy
      */
     public function restore(User $user, CartItems $cartItem): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -60,6 +60,6 @@ class CartItemsPolicy
      */
     public function forceDelete(User $user, CartItems $cartItem): bool
     {
-        return true;
+        return false;
     }
 }

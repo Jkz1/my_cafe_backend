@@ -49,6 +49,21 @@ class OrderApiTest extends TestCase
                 ]
             ]);
     }
+    public function test_admin_can_view_other_user_order()
+    {
+        $user = User::factory()->create();
+        $order = Order::factory()->for($user)->create();
+
+        $response = $this->actingAs($this->admin)
+            ->getJson("/api/orders/{$order->id}");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'data' => [
+                    'id' => $order->id
+                ]
+            ]);
+    }
     public function test_user_cannot_view_others_order()
     {
         $user = User::factory()->create();
@@ -99,7 +114,7 @@ class OrderApiTest extends TestCase
 
         $response = $this->actingAs($user)
             ->postJson('/api/orders', $payload);
-        
+
 
         $response->assertStatus(201)
             ->assertJsonStructure(['message', 'id']);
