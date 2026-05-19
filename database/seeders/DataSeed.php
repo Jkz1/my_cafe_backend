@@ -133,13 +133,13 @@ class DataSeed extends Seeder
             $user = $users->random();
             // Random date in April 2026
             $orderDate = \Illuminate\Support\Carbon::create(2026, 4, rand(1, 30), rand(8, 20), rand(0, 59), rand(0, 59));
-            
+
             $subtotal = 0;
             $orderItems = [];
-            
+
             $itemsCount = rand(1, 3);
             $selectedProducts = $allProducts->random($itemsCount);
-            
+
             foreach ($selectedProducts as $product) {
                 $qty = rand(1, 2);
                 $orderItems[] = [

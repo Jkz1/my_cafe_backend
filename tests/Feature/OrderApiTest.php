@@ -1,10 +1,10 @@
 <?php
 
 namespace Tests\Feature;
-
 use App\Models\CartItems;
 use App\Models\Coupons;
 use App\Services\OrderService;
+use Queue;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 use App\Models\User;
@@ -115,10 +115,8 @@ class OrderApiTest extends TestCase
         $response = $this->actingAs($user)
             ->postJson('/api/orders', $payload);
 
-
         $response->assertStatus(201)
             ->assertJsonStructure(['message', 'id']);
-
         $this->assertDatabaseHas('orders', [
             'user_id' => $user->id
         ]);
