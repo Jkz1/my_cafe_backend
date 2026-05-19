@@ -12,6 +12,7 @@ use App\Jobs\SendOrderConfirmationJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Pipeline;
 use Illuminate\Database\Eloquent\Builder;
+use Log;
 
 class OrderService
 {
@@ -59,13 +60,13 @@ class OrderService
         return $query->addSelect([
             'total_orders_count' => Order::selectRaw('count(*)')
                 ->whereColumn('user_id', 'users.id')
-                ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
-                ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+                ->when($from, fn($q) => $q->whereDate('orders.created_at', '>=', $from))
+                ->when($until, fn($q) => $q->whereDate('orders.created_at', '<=', $until)),
 
             'total_spend_sum' => Order::selectRaw('coalesce(sum(total_price), 0)')
                 ->whereColumn('user_id', 'users.id')
-                ->when($from, fn($q) => $q->whereDate('created_at', '>=', $from))
-                ->when($until, fn($q) => $q->whereDate('created_at', '<=', $until)),
+                ->when($from, fn($q) => $q->whereDate('orders.created_at', '>=', $from))
+                ->when($until, fn($q) => $q->whereDate('orders.created_at', '<=', $until)),
         ]);
     }
 }

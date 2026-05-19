@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Log;
 
 class SendOrderConfirmationJob implements ShouldQueue
 {
@@ -32,6 +33,7 @@ class SendOrderConfirmationJob implements ShouldQueue
     public function handle(): void
     {
         // Generate the PDF
+        Log::info("Start Sending Confirmation Email");
         $pdf = Pdf::loadView('pdf.invoice', ['order' => $this->order]);
         $pdfContent = $pdf->output();
 
@@ -39,5 +41,6 @@ class SendOrderConfirmationJob implements ShouldQueue
         Mail::to($this->order->user->email)->send(
             new OrderConfirmationMail($this->order, $pdfContent)
         );
+        Log::info("Finished Sending Confirmation Email");
     }
 }

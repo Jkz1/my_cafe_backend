@@ -30,6 +30,7 @@ class AssignCouponToUsersJob implements ShouldQueue
     public function handle(): void
     {
         $count = count($this->userIds);
+
         Log::info("Starting background bulk coupon assignment for Coupon ID: {$this->coupon->id} to {$count} users.");
 
         // Process in chunks of 1000 for high-performance bulk inserts

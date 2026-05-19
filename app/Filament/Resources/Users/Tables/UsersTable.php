@@ -19,13 +19,14 @@ use \App\Models\Coupons;
 use \App\Services\OrderService;
 use \App\Services\CouponsService;
 use Carbon\Carbon;
+use Log;
 class UsersTable
 {
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                $filters = request()->input('tableFilters.order_date', []);
+            ->modifyQueryUsing(function (Builder $query, $livewire) {
+                $filters = data_get($livewire->tableFilters, 'order_date', []);
                 return app(OrderService::class)->userOrderStatsQuery(
                     $query,
                     data_get($filters, 'order_from'),
@@ -67,11 +68,11 @@ class UsersTable
                         return $query
                             ->when(
                                 $data['order_from'],
-                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('created_at', '>=', $date)),
+                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('orders.created_at', '>=', $date)),
                             )
                             ->when(
                                 $data['order_until'],
-                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('created_at', '<=', $date)),
+                                fn(Builder $query, $date): Builder => $query->whereHas('orders', fn(Builder $query) => $query->whereDate('orders.created_at', '<=', $date)),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
