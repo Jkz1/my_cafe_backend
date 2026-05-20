@@ -21,7 +21,7 @@ class CartItemsServiceTest extends TestCase
         $this->service = new CartItemsService();
     }
 
-    
+
     public function test_it_can_store_new_cart_item()
     {
         $user = User::factory()->create();
@@ -41,7 +41,7 @@ class CartItemsServiceTest extends TestCase
         ]);
     }
 
-    
+
     public function test_it_increments_existing_cart_item()
     {
         $user = User::factory()->create();
@@ -63,7 +63,7 @@ class CartItemsServiceTest extends TestCase
         $this->assertEquals(5, $result->quantity);
     }
 
-    
+
     public function test_it_throws_exception_if_stock_not_enough_on_store()
     {
         $this->expectException(\Exception::class);
@@ -80,7 +80,7 @@ class CartItemsServiceTest extends TestCase
         ]);
     }
 
-    
+
     public function test_it_can_increment_cart_item()
     {
         $user = User::factory()->create();
@@ -99,7 +99,7 @@ class CartItemsServiceTest extends TestCase
         $this->assertEquals(4, $result->quantity);
     }
 
-    
+
     public function test_it_throws_exception_if_stock_not_enough_on_increment()
     {
         $this->expectException(\Exception::class);
@@ -118,7 +118,7 @@ class CartItemsServiceTest extends TestCase
         $this->service->increment($item->id, ['quantity' => 1]);
     }
 
-    
+
     public function test_it_can_decrement_cart_item()
     {
         $user = User::factory()->create();
@@ -137,7 +137,7 @@ class CartItemsServiceTest extends TestCase
         $this->assertEquals(3, $result->quantity);
     }
 
-    
+
     public function test_it_deletes_item_if_quantity_becomes_zero()
     {
         $user = User::factory()->create();
@@ -160,7 +160,7 @@ class CartItemsServiceTest extends TestCase
         ]);
     }
 
-    
+
     public function test_it_can_delete_cart_item()
     {
         $user = User::factory()->create();

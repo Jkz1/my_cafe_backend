@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Filament\Tables\Columns\TextColumn::configureUsing(function (\Filament\Tables\Columns\TextColumn $column): void {
+            $column->placeholder('—');
+        });
+
         Gate::before(function ($user, $ability) {
             return $user->hasRole('admin') ? true : null;
         });
