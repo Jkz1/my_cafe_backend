@@ -23,9 +23,17 @@ class RoleSeeder extends Seeder
         $p4 = Permission::firstOrCreate(['name' => 'add category']);
         $p5 = Permission::firstOrCreate(['name' => 'edit category']);
         $p6 = Permission::firstOrCreate(['name' => 'delete category']);
+        $p7 = Permission::firstOrCreate(['name' => 'manage coupons']);
+        $p8 = Permission::firstOrCreate(['name' => 'manage orders']);
+
+        $allPermissions = [$p1, $p2, $p3, $p4, $p5, $p6, $p7, $p8];
+        $adminPermisions = [$p1, $p2, $p4, $p5, $p6, $p7, $p8];
 
         // 2. Create Roles and Assign Permissions
+        $superAdmin = Role::firstOrCreate(['name' => 'super admin']);
+        $superAdmin->syncPermissions($allPermissions);
+
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $admin->givePermissionTo([$p1, $p2, $p3]);
+        $admin->syncPermissions($adminPermisions);
     }
 }

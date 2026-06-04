@@ -83,7 +83,7 @@ class CouponsService
         $users = User::all();
         $delayed = 0;
         foreach ($users as $user) {
-            if ($user->hasRole('admin')) {
+            if ($user->hasAnyRole(['admin', 'super admin'])) {
                 continue;
             }
             // Mail::to($user->email)->send(new PromotionEmail($user));

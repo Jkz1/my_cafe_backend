@@ -19,12 +19,25 @@ class DataSeed extends Seeder
     public function run(): void
     {
         // Create Admin
+        $superAdmin = User::firstOrCreate(['email' => 'SuperAdmin@gmail.com'], [
+            'name' => 'Super Admin',
+            'password' => bcrypt('SuperAdmin123'),
+        ]);
+        $superAdmin->assignRole('super admin');
+
         $admin = User::firstOrCreate(['email' => 'Admin@gmail.com'], [
             'name' => 'Admin',
             'password' => bcrypt('Admin123'),
         ]);
         $admin->assignRole('admin');
 
+        $dummyUser = User::firstOrCreate(
+            ["email" => "dummy@gmail.com"],
+            [
+                "name" => "dummy",
+                "password" => "dummy123"
+            ]
+        );
         // Create 4 random users
         $users = User::factory(4)->create();
 

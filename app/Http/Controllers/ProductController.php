@@ -8,9 +8,11 @@ use App\Http\Requests\Product\UpdateProductRequest;
 use App\Models\Product;
 use App\Services\ProductService;
 use App\Http\Resources\ProductResource;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductController extends Controller
 {
+    use AuthorizesRequests;
     protected $productService;
     public function __construct(ProductService $productService)
     {
@@ -28,6 +30,7 @@ class ProductController extends Controller
     }
     public function store(StoreProductRequest $request)
     {
+        $this->authorize('create', Product::class);
         $product = $this->productService->create($request->validated());
         return response()->json([
             'message' => 'Product created!',
@@ -37,6 +40,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, $id)
     {
         $product = Product::findOrFail($id);
+        $this->authorize('update', $product);
         $updatedProduct = $this->productService->update($product, $request->validated());
 
         return response()->json([
@@ -47,6 +51,7 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        $this->authorize('delete', $product);
         $product->delete();
         return response()->json(['message' => 'Product deleted successfully'], 200);
     }

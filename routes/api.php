@@ -43,7 +43,7 @@ Route::middleware('throttle:api')->group(function () {
     });
 
     // Admin routes
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin|super admin'])->group(function () {
 
         Route::prefix('orders')->group(function () {
             Route::get('/', [OrderController::class, 'index']);

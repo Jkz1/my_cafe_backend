@@ -27,7 +27,7 @@ class UpdateOrderRequest extends FormRequest
         $userStatus = ['cancelled'];
         $adminStatus = ['pending', 'shipping', 'completed', 'cancelled'];
 
-         $statusOptions = auth()->user()->hasRole('admin') ? $adminStatus : $userStatus;
+        $statusOptions = auth()->user()->hasAnyRole(['admin', 'super admin']) ? $adminStatus : $userStatus;
         return [
             'status' => [
                 'required',

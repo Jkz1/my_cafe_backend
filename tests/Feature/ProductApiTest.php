@@ -13,15 +13,21 @@ use Tests\TestCase;
 class ProductApiTest extends TestCase
 {
     use RefreshDatabase;
+    protected $superAdmin;
     protected $admin;
 
     protected function setUp(): void
     {
         parent::setUp();
-        Role::firstOrCreate(['name' => 'admin']);
+        $this->seed(\Database\Seeders\RoleSeeder::class);
+
         $admin = User::factory()->create();
         $admin->assignRole('admin');
         $this->admin = $admin;
+
+        $superAdmin = User::factory()->create();
+        $superAdmin->assignRole('super admin');
+        $this->superAdmin = $superAdmin;
     }
     public function test_index_product(): void
     {
@@ -108,11 +114,24 @@ class ProductApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name', 'price']);
     }
-    public function test_it_can_delete_product()
+    public function test_admin_cannot_delete_product()
     {
         $product = Product::factory()->create();
 
         $response = $this->actingAs($this->admin, 'sanctum')->deleteJson("/api/products/{$product->id}");
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id
+        ]);
+    }
+
+    public function test_super_admin_can_delete_product()
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->actingAs($this->superAdmin, 'sanctum')->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(200)
             ->assertJson([

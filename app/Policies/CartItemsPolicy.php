@@ -20,7 +20,7 @@ class CartItemsPolicy
      */
     public function view(User $user, CartItems $cartItem): bool
     {
-        return $user->id === $cartItem->user_id;
+        return $user->id === $cartItem->user_id || $user->hasAnyRole(['admin', 'super admin']);
     }
 
     /**
@@ -36,7 +36,7 @@ class CartItemsPolicy
      */
     public function update(User $user, CartItems $cartItem): bool
     {
-        return $user->id === $cartItem->user_id;
+        return $user->id === $cartItem->user_id || $user->hasAnyRole(['admin', 'super admin']);
     }
 
     /**
@@ -44,7 +44,7 @@ class CartItemsPolicy
      */
     public function delete(User $user, CartItems $cartItem): bool
     {
-        return $user->id === $cartItem->user_id;
+        return $user->id === $cartItem->user_id || $user->hasAnyRole(['admin', 'super admin']);
     }
 
     /**
