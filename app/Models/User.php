@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Models;
-use Filament\Models\Contracts\FilamentUser; // 1. Import the Contract
-use Filament\Panel;                         // 2. Import the Panel class
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Guarded;
@@ -20,7 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail, FilamentUser
 {
     public function canAccessPanel(Panel $panel): bool
     {
-        // Now, only users assigned the 'admin' role via Spatie can access the panel
+        // only users assigned the 'admin' role via Spatie can access the panel
         return $this->hasRole(['admin', 'super admin']);
     }
     public function sendEmailVerificationNotification()
