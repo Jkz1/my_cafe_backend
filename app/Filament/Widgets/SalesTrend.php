@@ -3,14 +3,11 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Order;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Schema; // Using your v5 Schema class
 use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
-use Illuminate\Contracts\View\View;
 
 class SalesTrendChart extends ChartWidget implements HasForms
 {
@@ -27,28 +24,6 @@ class SalesTrendChart extends ChartWidget implements HasForms
             'startDate' => now()->month(4)->startOfMonth()->toDateString(), // 2026-04-01
             'endDate' => now()->month(4)->endOfMonth()->toDateString(),     // 2026-04-30
         ];
-    }
-
-    /**
-     * V5 Schema hook instead of form()
-     */
-    public function schema(Schema $schema): Schema
-    {
-        return $schema
-            ->statePath('data') // Binds inputs directly to our $data array
-            ->components([
-                DatePicker::make('startDate')
-                    ->label('Start')
-                    ->native(false)
-                    ->live()
-                    ->afterStateUpdated(fn() => $this->dispatch('updateChartData')),
-                DatePicker::make('endDate')
-                    ->label('End')
-                    ->native(false)
-                    ->live()
-                    ->afterStateUpdated(fn() => $this->dispatch('updateChartData')),
-            ])
-            ->columns(2);
     }
     protected function getData(): array
     {
