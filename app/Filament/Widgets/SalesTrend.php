@@ -15,14 +15,20 @@ class SalesTrendChart extends ChartWidget implements HasForms
 
     protected ?string $heading = 'Sales Revenue Trend';
 
+    protected static ?int $sort = 0;
+
+    protected int|string|array $columnSpan = 2;
+
+    protected ?string $maxHeight = '280px';
+
     public ?array $data = [];
 
     public function mount(): void
     {
-        // Set your default state values directly into the data array
+
         $this->data = [
-            'startDate' => now()->month(4)->startOfMonth()->toDateString(), // 2026-04-01
-            'endDate' => now()->month(4)->endOfMonth()->toDateString(),     // 2026-04-30
+            'startDate' => now()->month(4)->startOfMonth()->toDateString(),
+            'endDate' => now()->month(4)->endOfMonth()->toDateString(),
         ];
     }
     protected function getData(): array
@@ -58,9 +64,14 @@ class SalesTrendChart extends ChartWidget implements HasForms
                     'label' => 'Revenue ($)',
                     'data' => $chartData,
                     'borderColor' => '#10b981',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.08)',
                     'fill' => true,
-                    'tension' => 0.3,
+                    'tension' => 0.4,
+                    'pointBackgroundColor' => '#10b981',
+                    'pointBorderColor' => '#fff',
+                    'pointBorderWidth' => 2,
+                    'pointRadius' => 4,
+                    'pointHoverRadius' => 6,
                 ],
             ],
             'labels' => $labels,
@@ -78,8 +89,17 @@ class SalesTrendChart extends ChartWidget implements HasForms
             {
                 scales: {
                     y: {
+                        beginAtZero: true,
                         ticks: {
                             callback: function(value) { return '$' + value.toLocaleString(); }
+                        },
+                        grid: {
+                            color: 'rgba(107, 114, 128, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
                         }
                     }
                 },
@@ -87,9 +107,12 @@ class SalesTrendChart extends ChartWidget implements HasForms
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return 'Revenue: $' + (context.parsed.y || 0).toLocaleString();
+                                return 'Revenue: $' + (context.parsed.y || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
                             }
                         }
+                    },
+                    legend: {
+                        display: false
                     }
                 }
             }

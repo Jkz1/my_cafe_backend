@@ -5,26 +5,33 @@ namespace App\Filament\Widgets;
 use App\Models\Product;
 use Filament\Widgets\ChartWidget;
 use Filament\Support\RawJs;
+
 class BestSaleProduct extends ChartWidget
 {
-    protected ?string $heading = 'Best Sale Product';
+    protected ?string $heading = 'Best Selling Products';
 
-    // 1. Set a default filter value so the chart loads properly on first visit
+    protected static ?int $sort = 2;
+
+    protected int|string|array $columnSpan = 1;
+
+    protected ?string $maxHeight = '280px';
+
+
     public ?string $filter = '5';
 
     protected function getData(): array
     {
-        // 2. Get the active filter value (cast it to an integer)
+
         $limit = (int) $this->filter;
 
-        // Fetch products dynamically based on the dropdown filter selection
+
         $bestSellers = Product::query()
             ->withSum('orderDetails as total_sales', 'quantity')
             ->orderByDesc('total_sales')
-            ->limit($limit) // Dynamic limit applied here!
+            ->limit($limit)
             ->get();
 
-        // 3. Optional: Dynamic color generator so you don't run out of colors if they choose Top 20
+
         $colors = $this->getDynamicColors($limit);
 
         return [
@@ -33,6 +40,9 @@ class BestSaleProduct extends ChartWidget
                     'label' => 'Units Sold',
                     'data' => $bestSellers->pluck('total_sales')->map(fn($value) => (int) $value)->toArray(),
                     'backgroundColor' => $colors,
+                    'borderColor' => '#1f2937',
+                    'borderWidth' => 2,
+                    'hoverOffset' => 8,
                 ],
             ],
             'labels' => $bestSellers->pluck('name')->toArray(),
@@ -44,7 +54,7 @@ class BestSaleProduct extends ChartWidget
         return 'pie';
     }
 
-    // 4. Define the dropdown filter options
+
     protected function getFilters(): ?array
     {
         return [
@@ -53,30 +63,51 @@ class BestSaleProduct extends ChartWidget
         ];
     }
 
-    // Helper method to ensure we have enough colors if the user selects Top 10 or 20
+
     private function getDynamicColors(int $count): array
     {
-        $palette = ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40', '#34d399', '#fb7185', '#a78bfa'];
+        $palette = [
+            '#8b5cf6',
+            '#f59e0b',
+            '#06b6d4',
+            '#ec4899',
+            '#10b981',
+            '#ef4444',
+            '#3b82f6',
+            '#f97316',
+            '#14b8a6',
+            '#a855f7',
+        ];
 
-        // If the requested count is larger than our palette, repeat the colors
+
         return array_slice(array_merge($palette, $palette), 0, $count);
     }
+
     protected function getOptions(): RawJs|array
     {
         return RawJs::from("
         {
             plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: { size: 11 }
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
                             let label = context.label || '';
                             let value = context.parsed || 0;
+
                             
-                            // Calculate percentage on the fly natively
                             let dataset = context.chart.data.datasets[0];
                             let total = dataset.data.reduce((acc, current) => acc + current, 0);
                             let percentage = parseFloat((value / total * 100).toFixed(1));
-                            
+
                             if (label) {
                                 label += ': ';
                             }
