@@ -32,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
             $column->placeholder('—');
         });
 
+        Scramble::configure()
+        ->withDocumentTransformers(function (OpenApi $openApi) {
+            $openApi->secure(SecurityScheme::http('bearer'));
+        });
+
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super admin') ? true : null;
         });
